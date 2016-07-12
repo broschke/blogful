@@ -60,12 +60,24 @@ def add_entry_post():
     session.add(entry)
     session.commit()
     return redirect(url_for("entries"))
-    
+     
 @app.route("/entry/<id>/edit")
+@login_required
 def edit_entry(id):
     entry = session.query(Entry)
     entry = entry.get(id)
+    return render_template("edit_entry.html",entry=entry)
     
+@app.route("/entry/<id>/edit", methods=["POST"])
+@login_required
+def edit_entry_post(id):
+    entry = session.query(Entry).get(id)
+    entry.title = request.form["title"],
+    entry.content = request.form["content"]
+    session.commit()
+    return redirect(url_for("entry",id=id))
+
+
 @app.route("/login", methods=["GET"])
 def login_get():
     return render_template("login.html")
@@ -82,3 +94,11 @@ def login_post():
     login_user(user)
     return redirect(request.args.get('next') or url_for("entries"))
 
+@app.route("/entry/<id>/delete")
+@login_required
+def delete_post(id):
+    entry = session.query(Entry).get(id)
+    session.delete(entry)
+    session.commit()
+    return redirect(url_for("entries"))
+    
